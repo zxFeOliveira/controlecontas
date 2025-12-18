@@ -70,6 +70,20 @@ public class ContaService {
         return contaRepository.save(conta);
     }
 
+    private void atualizarStatusAutomatico(Conta conta){
+        if (
+                conta.getStatusConta() == StatusConta.PENDENTE &&
+                        conta.getVencimento().isBefore(LocalDate.now())
+        ) {
+            conta.setStatusConta(StatusConta.ATRASADA);
+        }
+    }
+
+    private void atualizarContasAtrasadas(){
+        List<Conta> pendentes = contaRepository.findByStatusConta(StatusConta.PENDENTE);
+        pendentes.forEach(this::atualizarStatusAutomatico);
+    }
+
     public ContaResponseDTO toResponseDTO(Conta conta) {
         return new ContaResponseDTO(
                 conta.getId(),
