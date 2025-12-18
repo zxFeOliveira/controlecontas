@@ -2,6 +2,7 @@ package com.controlecontas.services;
 
 import com.controlecontas.domains.TipoConta;
 import com.controlecontas.dtos.TipoContaDTO;
+import com.controlecontas.exceptions.TipoContaNotFoundException;
 import com.controlecontas.repositories.ContaRepository;
 import com.controlecontas.repositories.TipoContaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,16 +31,20 @@ public class TipoContaService {
     }
 
     public void deleteTipoConta(Long id) {
+        TipoContaExiste(id);
+
         if (contaRepository.existsByTipo_Id(id)) {
             throw new IllegalStateException(
                     "Não é possível excluir o TipoConta pois existem contas associadas."
             );
         }
 
-        if (!tipoContaRepository.existsById(id)) {
-            throw new EntityNotFoundException("TipoConta não encontrado. ID: " + id);
-        }
-
         tipoContaRepository.deleteById(id);
+    }
+
+    private void TipoContaExiste(Long id){
+        if (!tipoContaRepository.existsById(id)) {
+            throw new TipoContaNotFoundException(id);
+        }
     }
 }

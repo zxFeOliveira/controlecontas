@@ -5,6 +5,7 @@ import com.controlecontas.domains.TipoConta;
 import com.controlecontas.dtos.ContaDTO;
 import com.controlecontas.dtos.ContaResponseDTO;
 import com.controlecontas.enums.StatusConta;
+import com.controlecontas.exceptions.ContaNotFoundException;
 import com.controlecontas.repositories.ContaRepository;
 import com.controlecontas.repositories.TipoContaRepository;
 import org.springframework.stereotype.Service;
@@ -41,30 +42,32 @@ public class ContaService {
     }
 
     public Conta findById(Long id){
+        contaExiste(id);
         return contaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada"));
     }
 
     public void deleteConta(Long id) {
-        if (!contaRepository.existsById(id)) {
-            throw new RuntimeException("Conta não encontrada");
-        }
+        contaExiste(id);
         contaRepository.deleteById(id);
     }
 
     public Conta updateVencimento(Long id, LocalDate novoVencimento) {
+        contaExiste(id);
         Conta conta = this.findById(id);
         conta.setVencimento(novoVencimento);
         return contaRepository.save(conta);
     }
 
     public Conta updateValor(Long id, BigDecimal novoValor) {
+        contaExiste(id);
         Conta conta = this.findById(id);
         conta.setValor(novoValor);
         return contaRepository.save(conta);
     }
 
     public Conta updateStatus(Long id, StatusConta novoStatus) {
+        contaExiste(id);
         Conta conta = this.findById(id);
         conta.setStatusConta(novoStatus);
         return contaRepository.save(conta);
@@ -79,9 +82,15 @@ public class ContaService {
         }
     }
 
-    private void atualizarContasAtrasadas(){
+    public void atualizarContasAtrasadas(){
         List<Conta> pendentes = contaRepository.findByStatusConta(StatusConta.PENDENTE);
         pendentes.forEach(this::atualizarStatusAutomatico);
+    }
+
+    private void contaExiste(Long id){
+        if (!contaRepository.existsById(id)) {
+            throw new ContaNotFoundException(id);
+        }
     }
 
     public ContaResponseDTO toResponseDTO(Conta conta) {

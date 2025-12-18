@@ -28,6 +28,7 @@ public class ContaController {
 
     @GetMapping
     public ResponseEntity<List<ContaResponseDTO>> getAllContas(){
+        contaService.atualizarContasAtrasadas();
         List<ContaResponseDTO> response = contaService.getAllContas()
                 .stream()
                 .map(contaService::toResponseDTO)
@@ -60,7 +61,6 @@ public class ContaController {
         return ResponseEntity.ok(contaService.toResponseDTO(conta));
     }
 
-    // PATCH - status
     @PatchMapping("/{id}/status")
     public ResponseEntity<ContaResponseDTO> updateStatus(
             @PathVariable Long id,

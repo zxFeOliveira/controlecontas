@@ -4,6 +4,6 @@ import com.controlecontas.enums.StatusConta;
 import jakarta.validation.constraints.NotNull;
 
 public record AtualizarStatusDTO(
-        @NotNull
+        @NotNull(message = "O status é obrigatório")
         StatusConta status)
 { }
